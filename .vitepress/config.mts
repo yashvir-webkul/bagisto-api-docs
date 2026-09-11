@@ -261,6 +261,14 @@ export default defineConfig(({ command, mode }) => {
                         ]
                       },
                       {
+                        text: 'Features',
+                        collapsed: true,
+                        link: '/api/graphql-api/shop/features/',
+                        items: [
+                          { text: 'Storefront Features', link: '/api/graphql-api/shop/features/' }
+                        ]
+                      },
+                      {
                         text: 'Theme',
                         collapsed: true,
                         link: '/api/graphql-api/shop/theme/',
@@ -473,6 +481,7 @@ export default defineConfig(({ command, mode }) => {
                             items: [
                               { text: 'List Returns', link: '/api/graphql-api/shop/returns/queries/list-returns' },
                               { text: 'View Return', link: '/api/graphql-api/shop/returns/queries/view-return' },
+                              { text: 'List Returnable Orders', link: '/api/graphql-api/shop/returns/queries/list-returnable-orders' },
                               { text: 'List Returnable Items', link: '/api/graphql-api/shop/returns/queries/list-returnable-items' },
                               { text: 'List Return Reasons', link: '/api/graphql-api/shop/returns/queries/list-return-reasons' },
                               { text: 'List Return Custom Fields', link: '/api/graphql-api/shop/returns/queries/list-return-custom-fields' },
@@ -1452,6 +1461,14 @@ export default defineConfig(({ command, mode }) => {
                     ]
                   },
                   {
+                    text: 'Features',
+                    collapsed: true,
+                    link: '/api/rest-api/shop/features/',
+                    items: [
+                          { text: 'Get Storefront Features', link: '/api/rest-api/shop/features/' },
+                    ]
+                  },
+                  {
                     text: 'Theme',
                     collapsed: true,
                     link: '/api/rest-api/shop/theme/',
@@ -1575,6 +1592,7 @@ export default defineConfig(({ command, mode }) => {
                           { text: 'Cancel Return', link: '/api/rest-api/shop/returns/cancel-return' },
                           { text: 'Reopen Return', link: '/api/rest-api/shop/returns/reopen-return' },
                           { text: 'Close Return', link: '/api/rest-api/shop/returns/close-return' },
+                          { text: 'List Returnable Orders', link: '/api/rest-api/shop/returns/list-returnable-orders' },
                           { text: 'List Returnable Items', link: '/api/rest-api/shop/returns/list-returnable-items' },
                           { text: 'List Return Reasons', link: '/api/rest-api/shop/returns/list-return-reasons' },
                           { text: 'List Return Custom Fields', link: '/api/rest-api/shop/returns/list-return-custom-fields' },

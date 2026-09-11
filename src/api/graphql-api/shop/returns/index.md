@@ -26,6 +26,7 @@ An item then stays returnable while the order date plus that window has not pass
 
 ## How a return works
 
+1. **Find eligible orders.** Query [`returnableOrders`](/api/graphql-api/shop/returns/queries/list-returnable-orders) for the orders a return can still be raised against — an empty list means there is nothing to return, which is what the Returns area should reflect.
 1. **Find eligible items.** Query [`returnableItems`](/api/graphql-api/shop/returns/queries/list-returnable-items) for an order to see which items are still within their return window and how many units can be returned or canceled.
 2. **Pick a reason.** Query [`returnReasons`](/api/graphql-api/shop/returns/queries/list-return-reasons) for the resolution type (`return` or `cancel_items`) to get the reason ids to choose from.
 3. **Collect the custom fields.** Query [`returnCustomFields`](/api/graphql-api/shop/returns/queries/list-return-custom-fields) for the extra questions the store asks on its return form. The list is often empty; when it is not, every field marked `isRequired` must be answered.
@@ -63,6 +64,7 @@ Evidence photos can only be attached while raising the return, and only over RES
 |-----------|---------------|-------------|
 | List own returns | [`customerReturns`](/api/graphql-api/shop/returns/queries/list-returns) | Paginated list of the customer's own returns. |
 | View one return | [`customerReturn`](/api/graphql-api/shop/returns/queries/view-return) | A single return the customer owns. |
+| List returnable orders | [`returnableOrders`](/api/graphql-api/shop/returns/queries/list-returnable-orders) | Orders a return can still be raised against. |
 | List returnable items | [`returnableItems`](/api/graphql-api/shop/returns/queries/list-returnable-items) | Return-eligible items of one of the customer's orders. |
 | List return reasons | [`returnReasons`](/api/graphql-api/shop/returns/queries/list-return-reasons) | Active reasons for a resolution type. |
 | List return custom fields | [`returnCustomFields`](/api/graphql-api/shop/returns/queries/list-return-custom-fields) | The store's extra questions on the return form. |

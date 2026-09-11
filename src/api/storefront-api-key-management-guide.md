@@ -140,7 +140,7 @@ php artisan bagisto-api:generate-key --name="Mobile App"
 php artisan bagisto-api:generate-key --name="Partner API" --rate-limit=500
 
 # Unlimited — pass an empty value
-php artisan bagisto-api:generate-key --name="Premium Integration" --rate-limit=
+php artisan bagisto-api:generate-key --name="Premium Integration" --rate-limit=0
 
 # Create inactive key (for later activation)
 php artisan bagisto-api:generate-key --name="Staging Environment" --no-activation

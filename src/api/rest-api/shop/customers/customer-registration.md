@@ -37,7 +37,7 @@ examples:
         "customerGroupId": 2,
         "channelId": 1,
         "subscribedToNewsLetter": true,
-        "isVerified": 0,
+        "isVerified": 1,
         "isSuspended": 0,
         "token": "1535|cusalnrd79pvOpEDorYMISQOwQh3P22DrAzcMvE7835a8e31",
         "rememberToken": null,
@@ -85,7 +85,7 @@ examples:
         "customerGroupId": 2,
         "channelId": 1,
         "subscribedToNewsLetter": true,
-        "isVerified": 0,
+        "isVerified": 1,
         "isSuspended": 0,
         "token": "1536|hZq2YJGjxgcB1NHnAVGPHlUURp1SK5PnO5Btk4c7d1a90",
         "rememberToken": null,
@@ -143,6 +143,8 @@ POST /api/shop/customers
 | `dateOfBirth` | string | No | Date of birth (YYYY-MM-DD) |
 | `subscribedToNewsLetter` | boolean | No | Newsletter subscription (default: false) |
 
+`status`, `isVerified` and `isSuspended` are optional and the value sent for them is not used. The server decides the account's state the way the web storefront sign-up does: `status` is `1` and `isSuspended` is `0`, and `isVerified` follows the store's **email verification** setting under Configuration → Customers → Settings → Email — `1` while it is switched off, `0` while it is switched on and the address has not been confirmed. An account with `isVerified` of `0` cannot sign in until the customer follows the link in the verification email.
+
 The account's **channel** and **customer group** are not part of the request body. The server assigns them automatically — the channel from the request's storefront, and the store's default customer group — exactly as the web storefront sign-up does. They come back in the response as `channelId` and `customerGroupId`.
 
 ## Response Fields (201 Created)
@@ -158,10 +160,10 @@ The account's **channel** and **customer group** are not part of the request bod
 | `dateOfBirth` | string | Customer date of birth |
 | `apiToken` | string | Legacy field, kept for backward compatibility. **Not** an auth Bearer — authenticate with `token` instead |
 | `token` | string | **The authentication credential** — send as `Authorization: Bearer <token>` |
-| `status` | integer | Account status (1=active, 0=inactive) |
+| `status` | integer | Account status — `1` active, `0` inactive. An inactive account cannot sign in |
 | `subscribedToNewsLetter` | boolean | Newsletter subscription status |
-| `isVerified` | integer | Email verification status (0=not verified) |
-| `isSuspended` | integer | Suspension status (0=active) |
+| `isVerified` | integer | Email verification state — `1` verified, `0` awaiting confirmation. An unverified account cannot sign in |
+| `isSuspended` | integer | Suspension state — `0` not suspended, `1` suspended by an administrator |
 | `name` | string | Full customer name |
 | `customerGroupId` | integer | Customer group the account is placed in. Assigned automatically by the server (the store's default customer group) — not sent by the client. |
 | `channelId` | integer | Channel the account is registered under. Assigned automatically from the request's storefront channel — not sent by the client. |

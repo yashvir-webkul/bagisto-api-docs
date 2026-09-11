@@ -50182,6 +50182,77 @@ This query requires an authenticated customer — send the storefront key and a 
 
 ---
 
+# Storefront Features
+URL: /api/graphql-api/shop/features
+
+---
+outline: false
+examples:
+  - id: storefront-feature
+    title: Storefront Features
+    description: Which optional features this channel has switched on, so the storefront knows what to render.
+    query: |
+      query {
+        storefrontFeature {
+          channel
+          gdpr
+          euWithdrawal
+        }
+      }
+    response: |
+      {
+        "data": {
+          "storefrontFeature": {
+            "channel": "default",
+            "gdpr": true,
+            "euWithdrawal": false
+          }
+        }
+      }
+    commonErrors:
+      - error: 401 Unauthorized
+        cause: Storefront key is missing or invalid
+        solution: Provide a valid X-STOREFRONT-KEY header
+---
+
+# Storefront Features
+
+Which optional features the store has switched on for this channel. Read it once when the storefront boots, so the account area can hide what the store does not offer instead of showing a link that answers with an error.
+
+## Authentication
+
+Public — send the storefront key. No customer token is needed, so this can be read before anyone logs in. See the [Authentication](/api/graphql-api/authentication) page.
+
+## Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `channel` | String | Channel the flags were read for. |
+| `gdpr` | Boolean | Whether customers may raise GDPR data requests. |
+| `euWithdrawal` | Boolean | Whether the EU right-of-withdrawal form is offered on orders. |
+
+Both flags are read per channel, so a store that enables a feature on one channel only reports it on that channel.
+
+Selecting `id` returns this resource's IRI rather than the channel code — select `channel` for the code.
+
+## What Each Flag Gates
+
+- **`gdpr`** — when `false`, the GDPR request operations refuse with an error. Hide the data-request screens rather than letting a customer submit into one.
+- **`euWithdrawal`** — when `false`, the withdrawal operations refuse the same way. The flag is per channel, so check it for the channel the customer is shopping.
+
+## Returns Are Not Listed Here
+
+Bagisto has no master switch for returns, so there is nothing honest to report as a boolean. Whether a customer can return anything is answered per order instead: query `returnableOrders` and show the Returns area when it comes back non-empty. That also reflects the return window and the product types the store allows, which a single flag could not.
+
+## Related Resources
+
+- [List Returnable Orders](/api/graphql-api/shop/returns/queries/list-returnable-orders) — whether returns are available to this customer
+- [Theme](/api/graphql-api/shop/theme/) — the theme the channel runs
+
+
+
+---
+
 # GDPR Data Requests
 URL: /api/graphql-api/shop/gdpr-requests
 
@@ -55557,7 +55628,7 @@ examples:
               "rememberToken": null,
               "subscribedToNewsLetter": true,
               "status": "1",
-              "token": "7b65c50e0c15cdc684d36e5819eb7c19",
+              "token": "1535|cusalnrd79pvOpEDorYMISQOwQh3P22DrAzcMvE7835a8e31",
               "phone": "5550123"
             }
           }
@@ -55630,7 +55701,7 @@ examples:
               "rememberToken": null,
               "subscribedToNewsLetter": true,
               "status": "1",
-              "token": "7b65c50e0c15cdc684d36e5819eb7c19",
+              "token": "1535|cusalnrd79pvOpEDorYMISQOwQh3P22DrAzcMvE7835a8e31",
               "phone": "5550123",
               "deviceToken": "your_fcm_device_token"
             }
@@ -55660,6 +55731,8 @@ The `deviceToken` field applies only when the [Bagisto Push Notification](https:
 | `subscribedToNewsLetter` | Boolean | ❌ No | Opt-in to marketing emails. Default: `false` |
 | `deviceToken` | String | ❌ No | FCM device token for push notifications. Only required if the [Bagisto Push Notification](https://bagisto.com/en/extensions/push-notifications-for-bagisto/) package is installed. |
 
+`status`, `isVerified` and `isSuspended` are optional and the value sent for them is not used. The server decides the account's state the way the web storefront sign-up does: `status` is `1` and `isSuspended` is `0`, and `isVerified` follows the store's **email verification** setting under Configuration → Customers → Settings → Email — `1` while it is switched off, `0` while it is switched on and the address has not been confirmed. An account with `isVerified` of `0` cannot sign in until the customer follows the link in the verification email.
+
 The account's **channel** and **customer group** are not arguments. The server assigns them automatically — the channel from the request's storefront, and the store's default customer group — exactly as the web storefront sign-up does. Select `channelId` and `customerGroupId` to read them back.
 
 ## Response
@@ -55673,9 +55746,9 @@ The account's **channel** and **customer group** are not arguments. The server a
 | `lastName` | String | Customer's last name |
 | `name` | String | Full name (first + last) |
 | `token` | String | Authentication token for use in subsequent requests |
-| `status` | String | Account status (`1` = active) |
-| `isVerified` | String | Whether the account is verified |
-| `isSuspended` | String | Whether the account is suspended |
+| `status` | String | Account status — `1` active, `0` inactive. An inactive account cannot sign in |
+| `isVerified` | String | Email verification state — `1` verified, `0` awaiting confirmation. An unverified account cannot sign in |
+| `isSuspended` | String | Suspension state — `0` not suspended, `1` suspended by an administrator |
 | `subscribedToNewsLetter` | Boolean | Newsletter subscription status |
 | `gender` | String | Customer's gender |
 | `dateOfBirth` | String | Customer's date of birth |
@@ -55693,7 +55766,7 @@ Authorization: Bearer <token>
 ```
 e.g.
 ```
-"Authorization": "Bearer 7b65c50e0c15cdc684d36e5819eb7c19"
+"Authorization": "Bearer 1535|cusalnrd79pvOpEDorYMISQOwQh3P22DrAzcMvE7835a8e31"
 ```
 
 ## Validation Rules
@@ -81742,6 +81815,7 @@ An item then stays returnable while the order date plus that window has not pass
 
 ## How a return works
 
+1. **Find eligible orders.** Query [`returnableOrders`](/api/graphql-api/shop/returns/queries/list-returnable-orders) for the orders a return can still be raised against — an empty list means there is nothing to return, which is what the Returns area should reflect.
 1. **Find eligible items.** Query [`returnableItems`](/api/graphql-api/shop/returns/queries/list-returnable-items) for an order to see which items are still within their return window and how many units can be returned or canceled.
 2. **Pick a reason.** Query [`returnReasons`](/api/graphql-api/shop/returns/queries/list-return-reasons) for the resolution type (`return` or `cancel_items`) to get the reason ids to choose from.
 3. **Collect the custom fields.** Query [`returnCustomFields`](/api/graphql-api/shop/returns/queries/list-return-custom-fields) for the extra questions the store asks on its return form. The list is often empty; when it is not, every field marked `isRequired` must be answered.
@@ -81779,6 +81853,7 @@ Evidence photos can only be attached while raising the return, and only over RES
 |-----------|---------------|-------------|
 | List own returns | [`customerReturns`](/api/graphql-api/shop/returns/queries/list-returns) | Paginated list of the customer's own returns. |
 | View one return | [`customerReturn`](/api/graphql-api/shop/returns/queries/view-return) | A single return the customer owns. |
+| List returnable orders | [`returnableOrders`](/api/graphql-api/shop/returns/queries/list-returnable-orders) | Orders a return can still be raised against. |
 | List returnable items | [`returnableItems`](/api/graphql-api/shop/returns/queries/list-returnable-items) | Return-eligible items of one of the customer's orders. |
 | List return reasons | [`returnReasons`](/api/graphql-api/shop/returns/queries/list-return-reasons) | Active reasons for a resolution type. |
 | List return custom fields | [`returnCustomFields`](/api/graphql-api/shop/returns/queries/list-return-custom-fields) | The store's extra questions on the return form. |
@@ -82854,6 +82929,165 @@ Units held by a canceled or declined return are released back into `currentQuant
 - [List Return Custom Fields](/api/graphql-api/shop/returns/queries/list-return-custom-fields)
 - [Raise a Return](/api/graphql-api/shop/returns/mutations/create-return)
 - [Returns Overview](/api/graphql-api/shop/returns/)
+
+
+
+---
+
+# List Returnable Orders
+URL: /api/graphql-api/shop/returns/queries/list-returnable-orders
+
+---
+outline: false
+examples:
+  - id: returnable-orders
+    title: List Returnable Orders
+    description: The customer's orders a return can still be raised against — the list the New Request flow opens with.
+    query: |
+      query {
+        returnableOrders {
+          id
+          _id
+          incrementId
+          status
+          statusLabel
+          grandTotal
+          formattedGrandTotal
+          orderCurrencyCode
+          paymentMethodTitle
+          totalQtyOrdered
+          totalReturnedQty
+          returnableQty
+          createdAt
+        }
+      }
+    response: |
+      {
+        "data": {
+          "returnableOrders": [
+            {
+              "id": "/api/shop/returnable_orders/41",
+              "_id": 41,
+              "incrementId": "41",
+              "status": "completed",
+              "statusLabel": "Completed",
+              "grandTotal": 160.0,
+              "formattedGrandTotal": "$160.00",
+              "orderCurrencyCode": "USD",
+              "paymentMethodTitle": "Cash On Delivery",
+              "totalQtyOrdered": 3,
+              "totalReturnedQty": 1,
+              "returnableQty": 2,
+              "createdAt": "2026-08-30 09:12:44"
+            }
+          ]
+        }
+      }
+    commonErrors:
+      - error: 403 Forbidden
+        cause: Missing or invalid customer Bearer token
+        solution: Log in and provide a valid customer authentication token
+      - error: 401 Unauthorized
+        cause: Storefront key is missing or invalid
+        solution: Provide a valid X-STOREFRONT-KEY header
+  - id: returnable-orders-filtered
+    title: Filter by Order Number
+    description: Narrow the list to one order number, or to a status, and choose the sort.
+    query: |
+      query ($incrementId: String, $sort: String, $order: String) {
+        returnableOrders(incrementId: $incrementId, sort: $sort, order: $order) {
+          _id
+          incrementId
+          status
+          formattedGrandTotal
+          returnableQty
+          createdAt
+        }
+      }
+    variables: |
+      {
+        "incrementId": "41",
+        "sort": "grand_total",
+        "order": "desc"
+      }
+    response: |
+      {
+        "data": {
+          "returnableOrders": [
+            {
+              "_id": 41,
+              "incrementId": "41",
+              "status": "completed",
+              "formattedGrandTotal": "$160.00",
+              "returnableQty": 2,
+              "createdAt": "2026-08-30 09:12:44"
+            }
+          ]
+        }
+      }
+    commonErrors:
+      - error: 403 Forbidden
+        cause: Missing or invalid customer Bearer token
+        solution: Log in and provide a valid customer authentication token
+---
+
+# List Returnable Orders
+
+The authenticated customer's orders that can still start a return. This is the first step of a return: pick an order here, read its items with [List Returnable Items](/api/graphql-api/shop/returns/queries/list-returnable-items), then submit with [Create Return](/api/graphql-api/shop/returns/mutations/create-return).
+
+## Authentication
+
+This query requires an authenticated customer — send the storefront key and a customer Bearer token. See the [Authentication](/api/graphql-api/authentication) page.
+
+## This Query Returns a Plain List
+
+`returnableOrders` is a list, not a Relay connection — a customer has few returnable orders, so the whole set comes back in one call. Select the fields directly as the examples do. Asking for `edges`, `node`, `pageInfo` or `totalCount` is a schema error, and the same is true of [List Returnable Items](/api/graphql-api/shop/returns/queries/list-returnable-items).
+
+An empty list means the customer has nothing to return right now — show that rather than an error.
+
+## When an Order Appears
+
+An order is listed while all of the following hold. They are evaluated per item, so one eligible item is enough to list the order.
+
+1. **The item was sold with returns allowed.** Eligibility is captured when the order is placed, from the product type the store permits returns for. An item placed while returns were off never becomes returnable later.
+2. **The return window is still open.** Each item carries its own window, taken from the store's return period at the time of purchase, counted from the item's own date.
+3. **Quantity is left.** Everything already requested on that item is subtracted; once the whole quantity is covered, the order drops off the list.
+4. **The order is in a usable state.** Canceled, closed, fraud and pending-payment orders never appear.
+
+## Arguments
+
+| Argument | Type | Description |
+|----------|------|-------------|
+| `incrementId` | String | Match the order number, partially. |
+| `status` | String | Match the order status exactly, e.g. `completed` or `processing`. |
+| `sort` | String | `created_at` (default), `increment_id` or `grand_total`. |
+| `order` | String | `desc` (default) or `asc`. |
+
+## Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | ID | Resource IRI. |
+| `_id` | Int | Order id — pass this as the order when listing items or creating the return. |
+| `incrementId` | String | Order number as the customer sees it. |
+| `status` | String | Order status. |
+| `statusLabel` | String | Translated status, ready to display. |
+| `grandTotal` | Float | Order total in the order's currency. |
+| `formattedGrandTotal` | String | Total formatted in the order's currency. |
+| `orderCurrencyCode` | String | Currency the order was placed in. |
+| `paymentMethodTitle` | String | Payment method title, or `null` when the order has none recorded. |
+| `totalQtyOrdered` | Int | Quantity across the order's returnable items. |
+| `totalReturnedQty` | Int | Quantity already covered by returns. |
+| `returnableQty` | Int | What is left — `totalQtyOrdered` minus `totalReturnedQty`. |
+| `createdAt` | String | When the order was placed. |
+
+`returnableQty` is a whole-order figure for display. The per-item caps the server actually enforces come from [List Returnable Items](/api/graphql-api/shop/returns/queries/list-returnable-items).
+
+## Related Resources
+
+- [List Returnable Items](/api/graphql-api/shop/returns/queries/list-returnable-items) — the items of a chosen order, with the quantity caps
+- [Create Return](/api/graphql-api/shop/returns/mutations/create-return) — raise the return
+- [Storefront Features](/api/graphql-api/shop/features/) — which optional features the channel offers
 
 
 
@@ -124736,7 +124970,7 @@ examples:
         "customerGroupId": 2,
         "channelId": 1,
         "subscribedToNewsLetter": true,
-        "isVerified": 0,
+        "isVerified": 1,
         "isSuspended": 0,
         "token": "1535|cusalnrd79pvOpEDorYMISQOwQh3P22DrAzcMvE7835a8e31",
         "rememberToken": null,
@@ -124784,7 +125018,7 @@ examples:
         "customerGroupId": 2,
         "channelId": 1,
         "subscribedToNewsLetter": true,
-        "isVerified": 0,
+        "isVerified": 1,
         "isSuspended": 0,
         "token": "1536|hZq2YJGjxgcB1NHnAVGPHlUURp1SK5PnO5Btk4c7d1a90",
         "rememberToken": null,
@@ -124842,6 +125076,8 @@ POST /api/shop/customers
 | `dateOfBirth` | string | No | Date of birth (YYYY-MM-DD) |
 | `subscribedToNewsLetter` | boolean | No | Newsletter subscription (default: false) |
 
+`status`, `isVerified` and `isSuspended` are optional and the value sent for them is not used. The server decides the account's state the way the web storefront sign-up does: `status` is `1` and `isSuspended` is `0`, and `isVerified` follows the store's **email verification** setting under Configuration → Customers → Settings → Email — `1` while it is switched off, `0` while it is switched on and the address has not been confirmed. An account with `isVerified` of `0` cannot sign in until the customer follows the link in the verification email.
+
 The account's **channel** and **customer group** are not part of the request body. The server assigns them automatically — the channel from the request's storefront, and the store's default customer group — exactly as the web storefront sign-up does. They come back in the response as `channelId` and `customerGroupId`.
 
 ## Response Fields (201 Created)
@@ -124857,10 +125093,10 @@ The account's **channel** and **customer group** are not part of the request bod
 | `dateOfBirth` | string | Customer date of birth |
 | `apiToken` | string | Legacy field, kept for backward compatibility. **Not** an auth Bearer — authenticate with `token` instead |
 | `token` | string | **The authentication credential** — send as `Authorization: Bearer <token>` |
-| `status` | integer | Account status (1=active, 0=inactive) |
+| `status` | integer | Account status — `1` active, `0` inactive. An inactive account cannot sign in |
 | `subscribedToNewsLetter` | boolean | Newsletter subscription status |
-| `isVerified` | integer | Email verification status (0=not verified) |
-| `isSuspended` | integer | Suspension status (0=active) |
+| `isVerified` | integer | Email verification state — `1` verified, `0` awaiting confirmation. An unverified account cannot sign in |
+| `isSuspended` | integer | Suspension state — `0` not suspended, `1` suspended by an administrator |
 | `name` | string | Full customer name |
 | `customerGroupId` | integer | Customer group the account is placed in. Assigned automatically by the server (the store's default customer group) — not sent by the client. |
 | `channelId` | integer | Channel the account is registered under. Assigned automatically from the request's storefront channel — not sent by the client. |
@@ -126601,6 +126837,84 @@ This endpoint requires an authenticated customer — send the storefront key and
 - [List EU Withdrawals](/api/rest-api/shop/eu-withdrawal/list-eu-withdrawals) — the customer's own declarations
 - [File a Withdrawal](/api/rest-api/shop/eu-withdrawal/create-eu-withdrawal) — file against one of the customer's own orders
 - [EU Withdrawal Overview](/api/rest-api/shop/eu-withdrawal/) — the withdrawal menu overview, including the setting that gates it
+
+
+
+---
+
+# Get Storefront Features
+URL: /api/rest-api/shop/features
+
+---
+outline: false
+examples:
+  - id: get-storefront-features
+    title: Get Storefront Features
+    description: Which optional features this channel has switched on, so the storefront knows what to render.
+    request: |
+      GET /api/shop/features
+      X-STOREFRONT-KEY: pk_storefront_PvlE42nWGsKRVIf8bDlJngTPAdWAZbIy
+    response: |
+      [
+        {
+          "id": "default",
+          "channel": "default",
+          "gdpr": true,
+          "euWithdrawal": false
+        }
+      ]
+    commonErrors:
+      - error: 401 Unauthorized
+        cause: Storefront key is missing or invalid
+        solution: Provide a valid X-STOREFRONT-KEY header
+---
+
+# Get Storefront Features
+
+Which optional features the store has switched on for this channel. Read it once when the storefront boots, so the account area can hide what the store does not offer instead of showing a link that answers with an error.
+
+## Endpoint
+
+```
+GET /api/shop/features
+```
+
+## Authentication
+
+Public — send the storefront key. No customer token is needed, so this can be read before anyone logs in. See the [Authentication](/api/rest-api/authentication) page.
+
+## Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Channel code, which identifies this flag set. |
+| `channel` | string | Channel the flags were read for. |
+| `gdpr` | boolean | Whether customers may raise GDPR data requests. |
+| `euWithdrawal` | boolean | Whether the EU right-of-withdrawal form is offered on orders. |
+
+Both flags are read per channel, so a store that enables a feature on one channel only reports it on that channel.
+
+## What Each Flag Gates
+
+- **`gdpr`** — when `false`, [GDPR Requests](/api/rest-api/shop/gdpr-requests/) refuse with `400`. Hide the data-request screens rather than letting a customer submit into an error.
+- **`euWithdrawal`** — when `false`, the withdrawal endpoints refuse the same way. The flag is per channel, so check it for the channel the customer is shopping.
+
+## Returns Are Not Listed Here
+
+Bagisto has no master switch for returns, so there is nothing honest to report as a boolean. Whether a customer can return anything is answered per order instead: call [List Returnable Orders](/api/rest-api/shop/returns/list-returnable-orders) and show the Returns area when it comes back non-empty. That also reflects the return window and the product types the store allows, which a single flag could not.
+
+## Status Codes
+
+| Status | Meaning |
+|--------|---------|
+| `200 OK` | The flags for the current channel. |
+| `401 Unauthorized` | Missing or invalid storefront key. |
+
+## Related Resources
+
+- [GDPR Requests](/api/rest-api/shop/gdpr-requests/) — gated by `gdpr`
+- [List Returnable Orders](/api/rest-api/shop/returns/list-returnable-orders) — whether returns are available to this customer
+- [Get Theme](/api/rest-api/shop/theme/) — the theme the channel runs
 
 
 
@@ -130486,6 +130800,7 @@ An item then stays returnable while the order date plus that window has not pass
 
 ## How a return works
 
+1. **Find eligible orders.** Call [`GET /api/shop/returnable-orders`](/api/rest-api/shop/returns/list-returnable-orders) for the orders a return can still be raised against — an empty list means there is nothing to return, which is what the Returns area should reflect.
 1. **Find eligible items.** Call [`GET /api/shop/returnable-items`](/api/rest-api/shop/returns/list-returnable-items) for an order to see which items are still within their return window and how many units can be returned or canceled.
 2. **Pick a reason.** Call [`GET /api/shop/return-reasons`](/api/rest-api/shop/returns/list-return-reasons) for the resolution type (`return` or `cancel_items`) to get the reason ids to choose from.
 3. **Collect the custom fields.** Call [`GET /api/shop/return-custom-fields`](/api/rest-api/shop/returns/list-return-custom-fields) for the extra questions the store asks on its return form. The list is often empty; when it is not, every field marked `isRequired` must be answered.
@@ -130527,6 +130842,7 @@ Evidence photos are attached while raising the return, by sending [`POST /api/sh
 | [Cancel a return](/api/rest-api/shop/returns/cancel-return) | `POST /api/shop/returns/{id}/cancel` | Cancel the customer's own return. |
 | [Reopen a return](/api/rest-api/shop/returns/reopen-return) | `POST /api/shop/returns/{id}/reopen` | Reopen a canceled/declined return. |
 | [Close a return](/api/rest-api/shop/returns/close-return) | `POST /api/shop/returns/{id}/close` | Mark a return solved. |
+| [List returnable orders](/api/rest-api/shop/returns/list-returnable-orders) | `GET /api/shop/returnable-orders` | Orders a return can still be raised against. |
 | [List returnable items](/api/rest-api/shop/returns/list-returnable-items) | `GET /api/shop/returnable-items` | Return-eligible items of one of the customer's orders. |
 | [List return reasons](/api/rest-api/shop/returns/list-return-reasons) | `GET /api/shop/return-reasons` | Active reasons for a resolution type. |
 | [List return custom fields](/api/rest-api/shop/returns/list-return-custom-fields) | `GET /api/shop/return-custom-fields` | The store's extra questions on the return form. |
@@ -131437,6 +131753,144 @@ Units held by a canceled or declined return are released back into `currentQuant
 
 ---
 
+# List Returnable Orders
+URL: /api/rest-api/shop/returns/list-returnable-orders
+
+---
+outline: false
+examples:
+  - id: list-returnable-orders
+    title: List Returnable Orders
+    description: The customer's orders a return can still be raised against — the list the New Request flow opens with.
+    request: |
+      GET /api/shop/returnable-orders
+      X-STOREFRONT-KEY: pk_storefront_PvlE42nWGsKRVIf8bDlJngTPAdWAZbIy
+      Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    response: |
+      [
+        {
+          "id": 41,
+          "incrementId": "41",
+          "status": "completed",
+          "statusLabel": "Completed",
+          "grandTotal": 160.0,
+          "formattedGrandTotal": "$160.00",
+          "orderCurrencyCode": "USD",
+          "paymentMethodTitle": "Cash On Delivery",
+          "totalQtyOrdered": 3,
+          "totalReturnedQty": 1,
+          "returnableQty": 2,
+          "createdAt": "2026-08-30 09:12:44"
+        }
+      ]
+    commonErrors:
+      - error: 403 Forbidden
+        cause: Missing or invalid customer Bearer token
+        solution: Log in and provide a valid customer authentication token
+      - error: 401 Unauthorized
+        cause: Storefront key is missing or invalid
+        solution: Provide a valid X-STOREFRONT-KEY header
+  - id: list-returnable-orders-filtered
+    title: Filter by Order Number
+    description: Narrow the list to one order number, or to a status, and choose the sort.
+    request: |
+      GET /api/shop/returnable-orders?increment_id=41&sort=grand_total&order=desc
+      X-STOREFRONT-KEY: pk_storefront_PvlE42nWGsKRVIf8bDlJngTPAdWAZbIy
+      Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    response: |
+      [
+        {
+          "id": 41,
+          "incrementId": "41",
+          "status": "completed",
+          "statusLabel": "Completed",
+          "grandTotal": 160.0,
+          "formattedGrandTotal": "$160.00",
+          "orderCurrencyCode": "USD",
+          "paymentMethodTitle": "Cash On Delivery",
+          "totalQtyOrdered": 3,
+          "totalReturnedQty": 1,
+          "returnableQty": 2,
+          "createdAt": "2026-08-30 09:12:44"
+        }
+      ]
+    commonErrors:
+      - error: 403 Forbidden
+        cause: Missing or invalid customer Bearer token
+        solution: Log in and provide a valid customer authentication token
+---
+
+# List Returnable Orders
+
+The authenticated customer's orders that can still start a return. This is the first screen of a return: pick an order here, then read its items from [List Returnable Items](/api/rest-api/shop/returns/list-returnable-items) and submit with [Create Return](/api/rest-api/shop/returns/create-return).
+
+## Endpoint
+
+```
+GET /api/shop/returnable-orders
+```
+
+## Authentication
+
+This endpoint requires an authenticated customer — send the storefront key and a customer Bearer token. See the [Authentication](/api/rest-api/authentication) page.
+
+## When an Order Appears
+
+An order is listed while all of the following hold. They are evaluated per item, so one eligible item is enough to list the order.
+
+1. **The item was sold with returns allowed.** Eligibility is captured when the order is placed, from the product type the store permits returns for. An item placed while returns were off never becomes returnable later.
+2. **The return window is still open.** Each item carries its own window, taken from the store's return period at the time of purchase, counted from the item's own date.
+3. **Quantity is left.** Everything already requested on that item is subtracted; once the whole quantity is covered, the order drops off the list.
+4. **The order is in a usable state.** Canceled, closed, fraud and pending-payment orders never appear.
+
+An empty array means the customer has nothing to return right now — show that rather than an error.
+
+## Query Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `increment_id` | string | No | Match the order number, partially. |
+| `status` | string | No | Match the order status exactly, e.g. `completed` or `processing`. |
+| `sort` | string | No | `created_at` (default), `increment_id` or `grand_total`. |
+| `order` | string | No | `desc` (default) or `asc`. |
+
+## Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | integer | Order id — pass this as `order_id` to the returnable-items and create endpoints. |
+| `incrementId` | string | Order number as the customer sees it. |
+| `status` | string | Order status. |
+| `statusLabel` | string | Translated status, ready to display. |
+| `grandTotal` | number | Order total in the order's currency. |
+| `formattedGrandTotal` | string | Total formatted in the order's currency. |
+| `orderCurrencyCode` | string | Currency the order was placed in. |
+| `paymentMethodTitle` | string | Payment method title, or `null` when the order has none recorded. |
+| `totalQtyOrdered` | integer | Quantity across the order's returnable items. |
+| `totalReturnedQty` | integer | Quantity already covered by returns. |
+| `returnableQty` | integer | What is left — `totalQtyOrdered` minus `totalReturnedQty`. |
+| `createdAt` | string | When the order was placed. |
+
+`returnableQty` is a whole-order figure for display. The per-item caps the server actually enforces come from [List Returnable Items](/api/rest-api/shop/returns/list-returnable-items).
+
+## Status Codes
+
+| Status | Meaning |
+|--------|---------|
+| `200 OK` | The list, possibly empty. |
+| `401 Unauthorized` | Missing or invalid storefront key. |
+| `403 Forbidden` | Missing or invalid customer Bearer token. |
+
+## Related Resources
+
+- [List Returnable Items](/api/rest-api/shop/returns/list-returnable-items) — the items of a chosen order, with the quantity caps
+- [Create Return](/api/rest-api/shop/returns/create-return) — raise the return
+- [Returns Overview](/api/rest-api/shop/returns/) — how the returns menu works
+
+
+
+---
+
 # List Returns
 URL: /api/rest-api/shop/returns/list-returns
 
@@ -131723,6 +132177,38 @@ examples:
       - error: 404 Not Found
         cause: The return does not exist or is not owned by the authenticated customer
         solution: Only return IDs belonging to the logged-in customer can be messaged
+  - id: send-return-message-with-attachment
+    title: Send a Message With an Attachment
+    description: Attach a photo or document to the message by sending the body as multipart/form-data.
+    request: |
+      POST /api/shop/return-messages
+      Content-Type: multipart/form-data
+      X-STOREFRONT-KEY: pk_storefront_PvlE42nWGsKRVIf8bDlJngTPAdWAZbIy
+      Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+      return_id=12
+      message=Photo of the damaged zipper attached.
+      file=@zipper.png
+    response: |
+      {
+        "id": 90,
+        "rmaId": 12,
+        "message": "Photo of the damaged zipper attached.",
+        "isAdmin": false,
+        "attachment": "zipper.png",
+        "attachmentUrl": "https://example.com/storage/rma-conversation/90/uWMoDLnDasmYZHnefiimBsBlydHKhP28zPHZxZbl.png",
+        "createdAt": "2026-07-20T11:18:00.000000Z"
+      }
+    commonErrors:
+      - error: 415 Unsupported Media Type
+        cause: The body was sent as multipart/form-data against a deployment that predates attachment support
+        solution: Upgrade to a package version that accepts multipart on this endpoint, or send the message as JSON without a file
+      - error: 403 Forbidden
+        cause: Missing or invalid customer Bearer token
+        solution: Log in and provide a valid customer authentication token
+      - error: 404 Not Found
+        cause: The return does not exist or is not owned by the authenticated customer
+        solution: Only return IDs belonging to the logged-in customer can be messaged
 ---
 
 # Send a Return Message
@@ -131743,7 +132229,7 @@ This endpoint requires an authenticated customer — send the storefront key and
 
 | Header | Required | Description |
 |--------|----------|-------------|
-| `Content-Type` | Yes | application/json |
+| `Content-Type` | Yes | `application/json`, or `multipart/form-data` when the message carries an attachment |
 | `X-STOREFRONT-KEY` | Yes | Your storefront API key |
 | `Authorization` | Yes | Bearer token (customer login required) |
 
@@ -131763,7 +132249,14 @@ This endpoint requires an authenticated customer — send the storefront key and
 | `return_id` | integer | Yes | Id of the return to add the message to. Must belong to the authenticated customer. |
 | `message` | string | Yes | The message text. |
 
-A file can be attached to the message by sending the request as `multipart/form-data` with a `file` field alongside the fields above, instead of a JSON body.
+## Attachments
+
+A message can carry one file — a photo of the damaged item, a scan, a receipt. Send the same fields as `multipart/form-data` instead of a JSON body and add the file in a `file` field:
+
+- **One file per message.** To send several, post several messages; each keeps its own attachment.
+- **The stored file is renamed.** The server stores it under `rma-conversation/{messageId}/` with a generated name, and the extension is derived from the file's detected type. `attachment` in the response keeps the name the customer uploaded, so show that in the conversation and link to `attachmentUrl`.
+- **Any file type the store accepts is allowed here.** Unlike the evidence images on [Create Return](/api/rest-api/shop/returns/create-return), a conversation attachment is not restricted to the configured image types.
+- **JSON stays valid.** Omit the file and send `application/json` exactly as in the first example; `attachment` and `attachmentUrl` then come back `null`.
 
 ## Response Fields (201 Created)
 
@@ -131773,15 +132266,15 @@ A file can be attached to the message by sending the request as `multipart/form-
 | `rmaId` | integer | Id of the return the message belongs to. |
 | `message` | string | The message text. |
 | `isAdmin` | boolean | `false` — the message was sent by the customer. |
-| `attachment` | string | Stored attachment path, or `null`. |
-| `attachmentUrl` | string | Public URL of the attachment, or `null`. |
+| `attachment` | string | File name as the customer uploaded it, or `null` when the message has no attachment. |
+| `attachmentUrl` | string | Public URL of the stored file, or `null`. |
 | `createdAt` | string | ISO 8601 message timestamp. |
 
 ## Status Codes
 
 | Status | Meaning |
 |--------|---------|
-| `201 Created` | Message added to the return conversation. |
+| `201 Created` | Message added to the return conversation, with the attachment stored when one was sent. |
 | `400 Bad Request` | `message` is missing. |
 | `401 Unauthorized` | Missing or invalid storefront key. |
 | `403 Forbidden` | Missing or invalid customer Bearer token. |
@@ -133629,7 +134122,7 @@ php artisan bagisto-api:generate-key --name="Mobile App"
 php artisan bagisto-api:generate-key --name="Partner API" --rate-limit=500
 
 # Unlimited — pass an empty value
-php artisan bagisto-api:generate-key --name="Premium Integration" --rate-limit=
+php artisan bagisto-api:generate-key --name="Premium Integration" --rate-limit=0
 
 # Create inactive key (for later activation)
 php artisan bagisto-api:generate-key --name="Staging Environment" --no-activation

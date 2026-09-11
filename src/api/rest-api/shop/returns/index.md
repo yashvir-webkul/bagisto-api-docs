@@ -26,6 +26,7 @@ An item then stays returnable while the order date plus that window has not pass
 
 ## How a return works
 
+1. **Find eligible orders.** Call [`GET /api/shop/returnable-orders`](/api/rest-api/shop/returns/list-returnable-orders) for the orders a return can still be raised against — an empty list means there is nothing to return, which is what the Returns area should reflect.
 1. **Find eligible items.** Call [`GET /api/shop/returnable-items`](/api/rest-api/shop/returns/list-returnable-items) for an order to see which items are still within their return window and how many units can be returned or canceled.
 2. **Pick a reason.** Call [`GET /api/shop/return-reasons`](/api/rest-api/shop/returns/list-return-reasons) for the resolution type (`return` or `cancel_items`) to get the reason ids to choose from.
 3. **Collect the custom fields.** Call [`GET /api/shop/return-custom-fields`](/api/rest-api/shop/returns/list-return-custom-fields) for the extra questions the store asks on its return form. The list is often empty; when it is not, every field marked `isRequired` must be answered.
@@ -67,6 +68,7 @@ Evidence photos are attached while raising the return, by sending [`POST /api/sh
 | [Cancel a return](/api/rest-api/shop/returns/cancel-return) | `POST /api/shop/returns/{id}/cancel` | Cancel the customer's own return. |
 | [Reopen a return](/api/rest-api/shop/returns/reopen-return) | `POST /api/shop/returns/{id}/reopen` | Reopen a canceled/declined return. |
 | [Close a return](/api/rest-api/shop/returns/close-return) | `POST /api/shop/returns/{id}/close` | Mark a return solved. |
+| [List returnable orders](/api/rest-api/shop/returns/list-returnable-orders) | `GET /api/shop/returnable-orders` | Orders a return can still be raised against. |
 | [List returnable items](/api/rest-api/shop/returns/list-returnable-items) | `GET /api/shop/returnable-items` | Return-eligible items of one of the customer's orders. |
 | [List return reasons](/api/rest-api/shop/returns/list-return-reasons) | `GET /api/shop/return-reasons` | Active reasons for a resolution type. |
 | [List return custom fields](/api/rest-api/shop/returns/list-return-custom-fields) | `GET /api/shop/return-custom-fields` | The store's extra questions on the return form. |

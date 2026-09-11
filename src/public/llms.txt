@@ -718,6 +718,10 @@ This API has two separate surfaces. Pick one and do not mix them:
 - [List EU Withdrawals](/api/graphql-api/shop/eu-withdrawal/queries/list-eu-withdrawals): Retrieve a paginated list of the authenticated customer's own EU right-of-withdrawal declarations, newest first.
 - [View EU Withdrawal](/api/graphql-api/shop/eu-withdrawal/queries/view-eu-withdrawal): Retrieve a single EU right-of-withdrawal declaration owned by the authenticated customer.
 
+## GraphQL API › Shop › Features
+
+- [Storefront Features](/api/graphql-api/shop/features): Which optional features this channel has switched on, so the storefront knows what to render.
+
 ## GraphQL API › Shop › Gdpr Requests
 
 - [GDPR Data Requests](/api/graphql-api/shop/gdpr-requests): GDPR data requests let a logged-in customer exercise their data-protection rights — asking the store to **delete** their account data or to **update** the…
@@ -860,6 +864,7 @@ This API has two separate surfaces. Pick one and do not mix them:
 - [List Return Messages](/api/graphql-api/shop/returns/queries/list-return-messages): List the conversation messages of a return (RMA) request owned by the authenticated customer, newest first.
 - [List Return Reasons](/api/graphql-api/shop/returns/queries/list-return-reasons): List the active reasons a customer can pick when raising a return, filtered by resolution type.
 - [List Returnable Items](/api/graphql-api/shop/returns/queries/list-returnable-items): List the return-eligible items of one of the authenticated customer's orders, with the quantity caps the store enforces.
+- [List Returnable Orders](/api/graphql-api/shop/returns/queries/list-returnable-orders): The customer's orders a return can still be raised against — the list the New Request flow opens with.
 - [List Returns](/api/graphql-api/shop/returns/queries/list-returns): Retrieve a paginated list of the authenticated customer's own return (RMA) requests, newest first.
 - [View Return](/api/graphql-api/shop/returns/queries/view-return): Retrieve a single return (RMA) request owned by the authenticated customer, including its item, images and action flags.
 
@@ -1582,6 +1587,10 @@ This API has two separate surfaces. Pick one and do not mix them:
 - [List EU Withdrawals](/api/rest-api/shop/eu-withdrawal/list-eu-withdrawals): Retrieve a paginated list of the authenticated customer's own EU right-of-withdrawal declarations, newest first.
 - [View EU Withdrawal](/api/rest-api/shop/eu-withdrawal/view-eu-withdrawal): Retrieve a single EU right-of-withdrawal declaration owned by the authenticated customer.
 
+## REST API › Shop › Features
+
+- [Get Storefront Features](/api/rest-api/shop/features): Which optional features this channel has switched on, so the storefront knows what to render.
+
 ## REST API › Shop › Gdpr Requests
 
 - [GDPR Data Requests](/api/rest-api/shop/gdpr-requests): GDPR data requests let a logged-in customer exercise their data-protection rights — asking the store to **delete** their account data or to **update** the…
@@ -1631,6 +1640,7 @@ This API has two separate surfaces. Pick one and do not mix them:
 - [List Return Messages](/api/rest-api/shop/returns/list-return-messages): List the conversation messages of a return (RMA) request owned by the authenticated customer, newest first.
 - [List Return Reasons](/api/rest-api/shop/returns/list-return-reasons): List the active reasons a customer can pick when raising a return, filtered by resolution type.
 - [List Returnable Items](/api/rest-api/shop/returns/list-returnable-items): List the return-eligible items of one of the authenticated customer's orders, with the quantity caps the store enforces.
+- [List Returnable Orders](/api/rest-api/shop/returns/list-returnable-orders): The customer's orders a return can still be raised against — the list the New Request flow opens with.
 - [List Returns](/api/rest-api/shop/returns/list-returns): Retrieve the authenticated customer's own return (RMA) requests, newest first.
 - [Reopen a Return](/api/rest-api/shop/returns/reopen-return): Reopen a canceled or declined return (RMA) request back to pending.
 - [Send a Return Message](/api/rest-api/shop/returns/send-return-message): Add a customer message to the conversation thread of a return (RMA) request.
