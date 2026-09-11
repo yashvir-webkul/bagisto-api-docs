@@ -31,7 +31,7 @@ An item then stays returnable while the order date plus that window has not pass
 2. **Pick a reason.** Call [`GET /api/shop/return-reasons`](/api/rest-api/shop/returns/list-return-reasons) for the resolution type (`return` or `cancel_items`) to get the reason ids to choose from.
 3. **Collect the custom fields.** Call [`GET /api/shop/return-custom-fields`](/api/rest-api/shop/returns/list-return-custom-fields) for the extra questions the store asks on its return form. The list is often empty; when it is not, every field marked `isRequired` must be answered.
 4. **Raise the return.** Call [`POST /api/shop/returns`](/api/rest-api/shop/returns/create-return) with the order, the item, a quantity, the resolution type, a reason id and the custom-field answers. Send it as `multipart/form-data` with `images[]` to attach evidence photos. The return starts in a `Pending` status.
-5. **Converse.** Read the thread with [`GET /api/shop/return-messages`](/api/rest-api/shop/returns/list-return-messages) and add messages with [`POST /api/shop/return-messages`](/api/rest-api/shop/returns/send-return-message).
+5. **Converse.** Read the thread with [`GET /api/shop/return-messages`](/api/rest-api/shop/returns/list-return-messages) and add messages with [`POST /api/shop/return-messages`](/api/rest-api/shop/returns/send-return-message). Send that as `multipart/form-data` with a `file` field to attach a photo or document to the message.
 6. **Cancel, reopen or close.** Use [cancel](/api/rest-api/shop/returns/cancel-return), [reopen](/api/rest-api/shop/returns/reopen-return) or [close](/api/rest-api/shop/returns/close-return) to change the state of the request.
 
 ## Status flags
@@ -54,9 +54,41 @@ When raising a return, the quantity you send is capped server-side by the truste
 
 A store can add its own questions to the return form — an invoice number, a preferred pickup slot, and so on. [`GET /api/shop/return-custom-fields`](/api/rest-api/shop/returns/list-return-custom-fields) lists the active ones with their types and allowed options; the answers go into `custom_attributes` when raising the return, keyed by field id, and come back on the return as `customAttributes`. A field marked `isRequired` rejects the return when unanswered, so fetch this before rendering your form.
 
-## Attaching images
+## Attaching files
 
-Evidence photos are attached while raising the return, by sending [`POST /api/shop/returns`](/api/rest-api/shop/returns/create-return) as `multipart/form-data` with an `images[]` file field. Each file is checked against the mime types the store allows (Configuration → Sales → RMA → *Allowed file extension*). There is no separate upload endpoint, and files cannot be sent over GraphQL — a return with images has to be raised over REST.
+There is no separate upload endpoint. A file rides along with the request that creates the record, on one of two endpoints, and both are REST-only — a JSON GraphQL request cannot carry a binary part.
+
+| What | Endpoint | Field | Limits |
+|------|----------|-------|--------|
+| Evidence photos on the return | [`POST /api/shop/returns`](/api/rest-api/shop/returns/create-return) | `images[]`, several per return | Only the mime types the store allows (Configuration → Sales → RMA → *Allowed file extension*) |
+| An attachment on a conversation message | [`POST /api/shop/return-messages`](/api/rest-api/shop/returns/send-return-message) | `file`, one per message | Any type the store accepts; not restricted to the configured image types |
+
+Send the request as `multipart/form-data` with the rest of the fields as ordinary form fields:
+
+```bash
+# Evidence photos while raising the return
+curl -X POST "https://your-store.com/api/shop/returns" \
+  -H "X-STOREFRONT-KEY: pk_storefront_PvlE42nWGsKRVIf8bDlJngTPAdWAZbIy" \
+  -H "Authorization: Bearer 438|aSV6JyFn299xuoR6wr5KKOodyIlMA26h0IgHiqLW" \
+  -F "order_id=45" \
+  -F "order_item_id=78" \
+  -F "rma_qty=1" \
+  -F "resolution_type=return" \
+  -F "rma_reason_id=2" \
+  -F "agreement=true" \
+  -F "images[]=@/home/john/Pictures/damage-front.jpg" \
+  -F "images[]=@/home/john/Pictures/damage-back.jpg"
+
+# A file on a message in the conversation
+curl -X POST "https://your-store.com/api/shop/return-messages" \
+  -H "X-STOREFRONT-KEY: pk_storefront_PvlE42nWGsKRVIf8bDlJngTPAdWAZbIy" \
+  -H "Authorization: Bearer 438|aSV6JyFn299xuoR6wr5KKOodyIlMA26h0IgHiqLW" \
+  -F "return_id=12" \
+  -F "message=Photo of the broken zipper" \
+  -F "file=@/home/john/Pictures/zipper.png"
+```
+
+Evidence photos can only be attached while raising the return; there is no way to add them to an existing one. A message attachment has no such limit — post another message whenever the customer has another file.
 
 ## Endpoints
 

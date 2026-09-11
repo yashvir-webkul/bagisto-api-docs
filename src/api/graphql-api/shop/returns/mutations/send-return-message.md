@@ -84,14 +84,28 @@ This mutation requires an authenticated customer — send the storefront key and
 | `customerReturnMessage.rmaId` | `Int!` | Id of the return the message belongs to. |
 | `customerReturnMessage.message` | `String!` | The message text. |
 | `customerReturnMessage.isAdmin` | `Boolean!` | `false` — the message was sent by the customer. |
-| `customerReturnMessage.attachment` | `String` | Stored attachment path, or `null`. |
+| `customerReturnMessage.attachment` | `String` | File name as the customer uploaded it, or `null` when the message has no attachment. |
 | `customerReturnMessage.attachmentUrl` | `String` | Public URL of the attachment, or `null`. |
 | `customerReturnMessage.createdAt` | `DateTime!` | Message timestamp. |
 
-Attaching a file to a message is REST-only, through a multipart `file` field — a JSON GraphQL request cannot carry a file. Send the text here, and use REST when the shopper attaches something.
+## Attaching a File
+
+A binary part cannot travel in a JSON GraphQL request, so a message that carries a file goes through the REST endpoint instead. Everything else is the same — the same fields, the same response, the same conversation thread:
+
+```bash
+curl -X POST "https://your-store.com/api/shop/return-messages" \
+  -H "X-STOREFRONT-KEY: pk_storefront_PvlE42nWGsKRVIf8bDlJngTPAdWAZbIy" \
+  -H "Authorization: Bearer 438|aSV6JyFn299xuoR6wr5KKOodyIlMA26h0IgHiqLW" \
+  -F "return_id=12" \
+  -F "message=Photo of the broken zipper" \
+  -F "file=@/home/john/Pictures/zipper.png"
+```
+
+One file per message, and any type the store accepts — a conversation attachment is not limited to the image types configured for return evidence. To send several files, post several messages. Read the thread back with [`customerReturnMessages`](/api/graphql-api/shop/returns/queries/list-return-messages) as usual; `attachment` holds the name the customer uploaded and `attachmentUrl` the link to serve.
 
 ## Related Resources
 
 - [List Return Messages](/api/graphql-api/shop/returns/queries/list-return-messages)
 - [View Return](/api/graphql-api/shop/returns/queries/view-return)
 - [Returns Overview](/api/graphql-api/shop/returns/)
+- [Send a Message (REST)](/api/rest-api/shop/returns/send-return-message)

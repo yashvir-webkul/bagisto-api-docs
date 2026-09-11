@@ -54,9 +54,38 @@ When raising a return, the quantity you send is capped server-side by the truste
 
 A store can add its own questions to the return form — an invoice number, a preferred pickup slot, and so on. [`returnCustomFields`](/api/graphql-api/shop/returns/queries/list-return-custom-fields) lists the active ones with their types and allowed options; the answers go into `customAttributes` when raising the return, keyed by field id, and come back on the return as `customAttributes`. A field marked `isRequired` rejects the mutation when unanswered, so query it before rendering your form.
 
-## Attaching images
+## Attaching files
 
-Evidence photos can only be attached while raising the return, and only over REST — [`POST /api/shop/returns`](/api/rest-api/shop/returns/create-return) as `multipart/form-data` with an `images[]` file field. A JSON GraphQL request cannot carry a file and there is no separate upload endpoint, so a return with images has to be raised over REST.
+A JSON GraphQL request cannot carry a binary part, so every file travels over REST. There is no separate upload endpoint on either transport; the file rides along with the request that creates the record.
+
+| What | Endpoint | Field |
+|------|----------|-------|
+| Evidence photos on the return | [`POST /api/shop/returns`](/api/rest-api/shop/returns/create-return) | `images[]`, several per return |
+| An attachment on a conversation message | [`POST /api/shop/return-messages`](/api/rest-api/shop/returns/send-return-message) | `file`, one per message |
+
+```bash
+# Evidence photos while raising the return
+curl -X POST "https://your-store.com/api/shop/returns" \
+  -H "X-STOREFRONT-KEY: pk_storefront_PvlE42nWGsKRVIf8bDlJngTPAdWAZbIy" \
+  -H "Authorization: Bearer 438|aSV6JyFn299xuoR6wr5KKOodyIlMA26h0IgHiqLW" \
+  -F "order_id=45" \
+  -F "order_item_id=78" \
+  -F "rma_qty=1" \
+  -F "resolution_type=return" \
+  -F "rma_reason_id=2" \
+  -F "agreement=true" \
+  -F "images[]=@/home/john/Pictures/damage-front.jpg"
+
+# A file on a message in the conversation
+curl -X POST "https://your-store.com/api/shop/return-messages" \
+  -H "X-STOREFRONT-KEY: pk_storefront_PvlE42nWGsKRVIf8bDlJngTPAdWAZbIy" \
+  -H "Authorization: Bearer 438|aSV6JyFn299xuoR6wr5KKOodyIlMA26h0IgHiqLW" \
+  -F "return_id=12" \
+  -F "message=Photo of the broken zipper" \
+  -F "file=@/home/john/Pictures/zipper.png"
+```
+
+A return the shopper attached photos to has to be raised over REST, since the photos can only go in at creation time. The conversation is otherwise unaffected: send messages through [`createCustomerReturnMessage`](/api/graphql-api/shop/returns/mutations/send-return-message) here, and switch to the REST call only for the messages that carry a file.
 
 ## Endpoints
 

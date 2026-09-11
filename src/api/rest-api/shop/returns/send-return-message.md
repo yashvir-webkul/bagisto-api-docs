@@ -8,7 +8,7 @@ examples:
       POST /api/shop/return-messages
       Content-Type: application/json
       X-STOREFRONT-KEY: pk_storefront_PvlE42nWGsKRVIf8bDlJngTPAdWAZbIy
-      Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      Authorization: Bearer 438|aSV6JyFn299xuoR6wr5KKOodyIlMA26h0IgHiqLW
 
       {
         "return_id": 12,
@@ -41,14 +41,15 @@ examples:
     title: Send a Message With an Attachment
     description: Attach a photo or document to the message by sending the body as multipart/form-data.
     request: |
-      POST /api/shop/return-messages
-      Content-Type: multipart/form-data
-      X-STOREFRONT-KEY: pk_storefront_PvlE42nWGsKRVIf8bDlJngTPAdWAZbIy
-      Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      curl -X POST "https://your-store.com/api/shop/return-messages" \
+        -H "X-STOREFRONT-KEY: pk_storefront_PvlE42nWGsKRVIf8bDlJngTPAdWAZbIy" \
+        -H "Authorization: Bearer 438|aSV6JyFn299xuoR6wr5KKOodyIlMA26h0IgHiqLW" \
+        -F "return_id=12" \
+        -F "message=Photo of the damaged zipper attached." \
+        -F "file=@/home/john/Pictures/zipper.png"
 
-      return_id=12
-      message=Photo of the damaged zipper attached.
-      file=@zipper.png
+      # @ before the path is what reads the file from disk. Do not set a
+      # Content-Type header — curl builds the multipart body and boundary.
     response: |
       {
         "id": 90,
@@ -112,6 +113,15 @@ This endpoint requires an authenticated customer — send the storefront key and
 ## Attachments
 
 A message can carry one file — a photo of the damaged item, a scan, a receipt. Send the same fields as `multipart/form-data` instead of a JSON body and add the file in a `file` field:
+
+```bash
+curl -X POST https://your-store.com/api/shop/return-messages \
+  -H "X-STOREFRONT-KEY: pk_storefront_..." \
+  -H "Authorization: Bearer <customer-token>" \
+  -F "return_id=12" \
+  -F "message=Photo of the damaged zipper attached." \
+  -F "file=@zipper.png"
+```
 
 - **One file per message.** To send several, post several messages; each keeps its own attachment.
 - **The stored file is renamed.** The server stores it under `rma-conversation/{messageId}/` with a generated name, and the extension is derived from the file's detected type. `attachment` in the response keeps the name the customer uploaded, so show that in the conversation and link to `attachmentUrl`.
