@@ -50,6 +50,7 @@ A customer raises a request (`pending`), can **revoke** it while it is still `pe
 
 | Operation | Method & Path | Description |
 |-----------|---------------|-------------|
+| [Check status](/api/rest-api/shop/gdpr-requests/gdpr-status) | `GET /api/shop/gdpr-status` | Whether GDPR requests are enabled on the channel. |
 | [List own requests](/api/rest-api/shop/gdpr-requests/list-gdpr-requests) | `GET /api/shop/gdpr-requests` | Paginated list of the customer's own GDPR requests. |
 | [View one request](/api/rest-api/shop/gdpr-requests/view-gdpr-request) | `GET /api/shop/gdpr-requests/{id}` | A single request the customer owns. |
 | [Raise a request](/api/rest-api/shop/gdpr-requests/create-gdpr-request) | `POST /api/shop/gdpr-requests` | Raise a new `delete` or `update` request. |

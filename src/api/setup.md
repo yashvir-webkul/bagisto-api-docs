@@ -47,9 +47,13 @@ Edit `bootstrap/providers.php`:
 ```php
 <?php
 
+// ...existing imports...
+use Webkul\BagistoApi\Providers\BagistoApiServiceProvider;
+// ...rest of imports...
+
 return [
     // ...existing providers...
-    Webkul\BagistoApi\Providers\BagistoApiServiceProvider::class,
+    BagistoApiServiceProvider::class,
     // ...rest of providers...
 ];
 ```
@@ -72,29 +76,18 @@ Edit `composer.json` and update the `autoload` section:
 
 Install the API Platform packages.
 
-On **Bagisto 2.4.x**, the Laravel bridge and the GraphQL package bring in every other API Platform component at a matching version, so only these two are needed:
+On **Bagisto 2.4.x**, the Laravel bridge and the GraphQL package bring in every other API Platform component at a matching version, so only these two are needed, together with the Symfony components they run on:
 
 ```bash
-composer require \
+composer require -W \
   api-platform/laravel:~4.3.8 \
-  api-platform/graphql:~4.3.8
-```
-
-On **Bagisto 2.3.x** (which runs the older release of this package), API Platform is not on a single aligned version, so every component must be pinned individually:
-
-```bash
-composer require \
-  api-platform/laravel:v4.1.25 \
-  api-platform/graphql:v4.2.3 \
-  api-platform/metadata:v4.3.1 \
-  api-platform/serializer:v4.3.1 \
-  api-platform/state:v4.3.1 \
-  api-platform/jsonld:v4.3.1 \
-  api-platform/hydra:v4.3.1 \
-  api-platform/openapi:v4.3.1 \
-  api-platform/json-schema:v4.3.1 \
-  api-platform/json-api:v4.3.1 \
-  api-platform/documentation:v4.3.1
+  api-platform/graphql:~4.3.8 \
+  "symfony/property-access:^7.0" \
+  "symfony/property-info:^7.1" \
+  "symfony/serializer:^7.4.9" \
+  "symfony/type-info:^7.3" \
+  "symfony/validator:^7.0" \
+  "symfony/web-link:^7.4"
 ```
 
 #### Step 5: Run the installation

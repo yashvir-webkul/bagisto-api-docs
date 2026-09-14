@@ -715,12 +715,9 @@ This API has two separate surfaces. Pick one and do not mix them:
 
 ## GraphQL API › Shop › Eu Withdrawal › Queries
 
+- [EU Withdrawal Status](/api/graphql-api/shop/eu-withdrawal/queries/eu-withdrawal-status): Whether customers can file an EU withdrawal on the current channel.
 - [List EU Withdrawals](/api/graphql-api/shop/eu-withdrawal/queries/list-eu-withdrawals): Retrieve a paginated list of the authenticated customer's own EU right-of-withdrawal declarations, newest first.
 - [View EU Withdrawal](/api/graphql-api/shop/eu-withdrawal/queries/view-eu-withdrawal): Retrieve a single EU right-of-withdrawal declaration owned by the authenticated customer.
-
-## GraphQL API › Shop › Features
-
-- [Storefront Features](/api/graphql-api/shop/features): Which optional features this channel has switched on, so the storefront knows what to render.
 
 ## GraphQL API › Shop › Gdpr Requests
 
@@ -734,6 +731,7 @@ This API has two separate surfaces. Pick one and do not mix them:
 
 ## GraphQL API › Shop › Gdpr Requests › Queries
 
+- [GDPR Status](/api/graphql-api/shop/gdpr-requests/queries/gdpr-status): Whether customers can raise GDPR data requests on the current channel.
 - [List GDPR Requests](/api/graphql-api/shop/gdpr-requests/queries/list-gdpr-requests): Retrieve a paginated list of the authenticated customer's own GDPR data requests, newest first.
 - [View GDPR Request](/api/graphql-api/shop/gdpr-requests/queries/view-gdpr-request): Retrieve a single GDPR data request owned by the authenticated customer.
 
@@ -1584,18 +1582,16 @@ This API has two separate surfaces. Pick one and do not mix them:
 - [EU Right of Withdrawal](/api/rest-api/shop/eu-withdrawal): The EU right-of-withdrawal endpoints let a shopper formally declare that they are exercising their statutory right to withdraw from a purchase (the EU…
 - [File an EU Withdrawal](/api/rest-api/shop/eu-withdrawal/create-eu-withdrawal): File an EU right-of-withdrawal declaration against one of the authenticated customer's own orders.
 - [File a Guest EU Withdrawal](/api/rest-api/shop/eu-withdrawal/create-guest-eu-withdrawal): File an EU right-of-withdrawal declaration for a guest order, proving ownership with the order increment id and email.
+- [EU Withdrawal Status](/api/rest-api/shop/eu-withdrawal/eu-withdrawal-status): Whether customers can file an EU withdrawal on the current channel.
 - [List EU Withdrawals](/api/rest-api/shop/eu-withdrawal/list-eu-withdrawals): Retrieve a paginated list of the authenticated customer's own EU right-of-withdrawal declarations, newest first.
 - [View EU Withdrawal](/api/rest-api/shop/eu-withdrawal/view-eu-withdrawal): Retrieve a single EU right-of-withdrawal declaration owned by the authenticated customer.
-
-## REST API › Shop › Features
-
-- [Get Storefront Features](/api/rest-api/shop/features): Which optional features this channel has switched on, so the storefront knows what to render.
 
 ## REST API › Shop › Gdpr Requests
 
 - [GDPR Data Requests](/api/rest-api/shop/gdpr-requests): GDPR data requests let a logged-in customer exercise their data-protection rights — asking the store to **delete** their account data or to **update** the…
 - [Raise a GDPR Request](/api/rest-api/shop/gdpr-requests/create-gdpr-request): Raise a new GDPR data request (delete or update) for the authenticated customer.
 - [Delete a GDPR Request](/api/rest-api/shop/gdpr-requests/delete-gdpr-request): Remove a GDPR data request record owned by the authenticated customer.
+- [GDPR Status](/api/rest-api/shop/gdpr-requests/gdpr-status): Whether customers can raise GDPR data requests on the current channel.
 - [List GDPR Requests](/api/rest-api/shop/gdpr-requests/list-gdpr-requests): Retrieve a paginated list of the authenticated customer's own GDPR data requests, newest first.
 - [Revoke a GDPR Request](/api/rest-api/shop/gdpr-requests/revoke-gdpr-request): Withdraw a pending or processing GDPR data request owned by the authenticated customer.
 - [View GDPR Request](/api/rest-api/shop/gdpr-requests/view-gdpr-request): Retrieve a single GDPR data request owned by the authenticated customer.

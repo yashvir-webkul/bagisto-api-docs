@@ -53,6 +53,7 @@ Only the store moves a request into `processing`, `declined`, or `approved`; tho
 
 | Operation | GraphQL field | Description |
 |-----------|---------------|-------------|
+| Check status | [`gdprStatus`](/api/graphql-api/shop/gdpr-requests/queries/gdpr-status) | Whether GDPR requests are enabled on the channel. |
 | List own requests | [`gdprRequests`](/api/graphql-api/shop/gdpr-requests/queries/list-gdpr-requests) | Paginated list of the customer's own GDPR requests. |
 | View one request | [`gdprRequest`](/api/graphql-api/shop/gdpr-requests/queries/view-gdpr-request) | A single request the customer owns. |
 | Raise a request | [`createGdprRequest`](/api/graphql-api/shop/gdpr-requests/mutations/create-gdpr-request) | Raise a new `delete` or `update` request. |

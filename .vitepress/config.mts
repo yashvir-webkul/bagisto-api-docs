@@ -261,14 +261,6 @@ export default defineConfig(({ command, mode }) => {
                         ]
                       },
                       {
-                        text: 'Features',
-                        collapsed: true,
-                        link: '/api/graphql-api/shop/features/',
-                        items: [
-                          { text: 'Storefront Features', link: '/api/graphql-api/shop/features/' }
-                        ]
-                      },
-                      {
                         text: 'Theme',
                         collapsed: true,
                         link: '/api/graphql-api/shop/theme/',
@@ -455,6 +447,7 @@ export default defineConfig(({ command, mode }) => {
                             text: 'Queries',
                             collapsed: true,
                             items: [
+                              { text: 'GDPR Status', link: '/api/graphql-api/shop/gdpr-requests/queries/gdpr-status' },
                               { text: 'List GDPR Requests', link: '/api/graphql-api/shop/gdpr-requests/queries/list-gdpr-requests' },
                               { text: 'View GDPR Request', link: '/api/graphql-api/shop/gdpr-requests/queries/view-gdpr-request' },
                             ]
@@ -510,6 +503,7 @@ export default defineConfig(({ command, mode }) => {
                             text: 'Queries',
                             collapsed: true,
                             items: [
+                              { text: 'EU Withdrawal Status', link: '/api/graphql-api/shop/eu-withdrawal/queries/eu-withdrawal-status' },
                               { text: 'List EU Withdrawals', link: '/api/graphql-api/shop/eu-withdrawal/queries/list-eu-withdrawals' },
                               { text: 'View EU Withdrawal', link: '/api/graphql-api/shop/eu-withdrawal/queries/view-eu-withdrawal' },
                             ]
@@ -1461,14 +1455,6 @@ export default defineConfig(({ command, mode }) => {
                     ]
                   },
                   {
-                    text: 'Features',
-                    collapsed: true,
-                    link: '/api/rest-api/shop/features/',
-                    items: [
-                          { text: 'Get Storefront Features', link: '/api/rest-api/shop/features/' },
-                    ]
-                  },
-                  {
                     text: 'Theme',
                     collapsed: true,
                     link: '/api/rest-api/shop/theme/',
@@ -1574,6 +1560,7 @@ export default defineConfig(({ command, mode }) => {
                     collapsed: true,
                     link: '/api/rest-api/shop/gdpr-requests/',
                     items: [
+                          { text: 'GDPR Status', link: '/api/rest-api/shop/gdpr-requests/gdpr-status' },
                           { text: 'List GDPR Requests', link: '/api/rest-api/shop/gdpr-requests/list-gdpr-requests' },
                           { text: 'View GDPR Request', link: '/api/rest-api/shop/gdpr-requests/view-gdpr-request' },
                           { text: 'Raise GDPR Request', link: '/api/rest-api/shop/gdpr-requests/create-gdpr-request' },
@@ -1605,6 +1592,7 @@ export default defineConfig(({ command, mode }) => {
                     collapsed: true,
                     link: '/api/rest-api/shop/eu-withdrawal/',
                     items: [
+                          { text: 'EU Withdrawal Status', link: '/api/rest-api/shop/eu-withdrawal/eu-withdrawal-status' },
                           { text: 'List EU Withdrawals', link: '/api/rest-api/shop/eu-withdrawal/list-eu-withdrawals' },
                           { text: 'View EU Withdrawal', link: '/api/rest-api/shop/eu-withdrawal/view-eu-withdrawal' },
                           { text: 'File EU Withdrawal', link: '/api/rest-api/shop/eu-withdrawal/create-eu-withdrawal' },

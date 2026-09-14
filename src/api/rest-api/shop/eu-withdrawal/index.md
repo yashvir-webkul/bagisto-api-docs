@@ -54,6 +54,7 @@ A withdrawal declaration moves through these statuses:
 
 | Operation | Method & Path | Description |
 |-----------|---------------|-------------|
+| [Check status](/api/rest-api/shop/eu-withdrawal/eu-withdrawal-status) | `GET /api/shop/eu-withdrawal-status` | Whether EU withdrawal is enabled on the channel. |
 | [List own declarations](/api/rest-api/shop/eu-withdrawal/list-eu-withdrawals) | `GET /api/shop/eu-withdrawals` | Paginated list of the customer's own declarations. |
 | [View one declaration](/api/rest-api/shop/eu-withdrawal/view-eu-withdrawal) | `GET /api/shop/eu-withdrawals/{id}` | A single declaration the customer owns. |
 | [File (authenticated)](/api/rest-api/shop/eu-withdrawal/create-eu-withdrawal) | `POST /api/shop/eu-withdrawals` | File a declaration against one of the customer's own orders. |

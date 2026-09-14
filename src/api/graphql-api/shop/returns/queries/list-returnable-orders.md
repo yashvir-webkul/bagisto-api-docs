@@ -148,4 +148,3 @@ An order is listed while all of the following hold. They are evaluated per item,
 
 - [List Returnable Items](/api/graphql-api/shop/returns/queries/list-returnable-items) — the items of a chosen order, with the quantity caps
 - [Create Return](/api/graphql-api/shop/returns/mutations/create-return) — raise the return
-- [Storefront Features](/api/graphql-api/shop/features/) — which optional features the channel offers

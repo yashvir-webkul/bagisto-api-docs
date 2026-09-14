@@ -54,6 +54,7 @@ A withdrawal declaration moves through these statuses:
 
 | Operation | GraphQL field | Description |
 |-----------|---------------|-------------|
+| Check status | [`euWithdrawalStatus`](/api/graphql-api/shop/eu-withdrawal/queries/eu-withdrawal-status) | Whether EU withdrawal is enabled on the channel. |
 | List own declarations | [`euWithdrawals`](/api/graphql-api/shop/eu-withdrawal/queries/list-eu-withdrawals) | Paginated list of the authenticated customer's own declarations. |
 | View one declaration | [`euWithdrawal`](/api/graphql-api/shop/eu-withdrawal/queries/view-eu-withdrawal) | A single declaration the customer owns. |
 | File (authenticated) | [`createEuWithdrawal`](/api/graphql-api/shop/eu-withdrawal/mutations/create-eu-withdrawal) | File a declaration against one of the customer's own orders. |
